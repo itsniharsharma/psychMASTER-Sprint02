@@ -71,6 +71,47 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+# Chat endpoints
+@api_router.post("/chat", response_model=ChatResponse)
+async def chat_with_ai(request: ChatRequest):
+    """Send a message to the AI and get a response"""
+    try:
+        result = mental_health_service.get_response(
+            message=request.message,
+            session_id=request.session_id
+        )
+        
+        return ChatResponse(
+            response=result['response'],
+            session_id=result['session_id'],
+            is_crisis=result.get('is_crisis', False)
+        )
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error during chat processing")
+
+@api_router.post("/chat/session", response_model=SessionResponse)
+async def manage_session(request: SessionRequest):
+    """Create or manage chat sessions"""
+    try:
+        if request.action == "create":
+            session_id = mental_health_service.create_session()
+            return SessionResponse(session_id=session_id)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid action")
+    except Exception as e:
+        logger.error(f"Session error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error during session management")
+
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "psychMASTER API",
+        "langchain_initialized": mental_health_service.qa_chain is not None
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
