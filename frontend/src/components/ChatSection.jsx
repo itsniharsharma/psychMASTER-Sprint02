@@ -229,6 +229,7 @@ const ChatSection = () => {
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
+                onKeyPress={handleKeyPress}
                 placeholder="Share what's on your mind..."
                 className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 disabled={isTyping || !sessionId}
