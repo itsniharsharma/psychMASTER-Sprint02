@@ -28,6 +28,23 @@ const ChatSection = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Initialize session on component mount
+  useEffect(() => {
+    const initSession = async () => {
+      try {
+        const response = await axios.post(`${API}/chat/session`, {
+          action: "create"
+        });
+        setSessionId(response.data.session_id);
+      } catch (error) {
+        console.error('Failed to create session:', error);
+        setError('Failed to initialize chat session');
+      }
+    };
+    
+    initSession();
+  }, []);
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputText.trim()) return;
@@ -40,21 +57,49 @@ const ChatSection = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentMessage = inputText;
     setInputText('');
     setIsTyping(true);
+    setError(null);
 
-    // Simulate AI response delay
-    setTimeout(() => {
+    try {
+      // Send message to AI backend
+      const response = await axios.post(`${API}/chat`, {
+        message: currentMessage,
+        session_id: sessionId
+      });
+
       const botResponse = {
         id: Date.now() + 1,
-        text: getRandomResponse(inputText),
+        text: response.data.response,
         isBot: true,
-        timestamp: new Date()
+        timestamp: new Date(),
+        isCrisis: response.data.is_crisis || false
       };
       
       setMessages(prev => [...prev, botResponse]);
+      
+      // Update session ID if returned
+      if (response.data.session_id && response.data.session_id !== sessionId) {
+        setSessionId(response.data.session_id);
+      }
+      
+    } catch (error) {
+      console.error('Chat error:', error);
+      
+      const errorMessage = {
+        id: Date.now() + 1,
+        text: "I'm experiencing some technical difficulties right now. Please try again in a moment. If you're in crisis, please call 988 or your local emergency services.",
+        isBot: true,
+        timestamp: new Date(),
+        isError: true
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      setError('Connection error - please try again');
+    } finally {
       setIsTyping(false);
-    }, 1500 + Math.random() * 1000); // Random delay between 1.5-2.5 seconds
+    }
   };
 
   const formatTime = (timestamp) => {
