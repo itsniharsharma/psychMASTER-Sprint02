@@ -205,6 +205,11 @@ const ChatSection = () => {
 
           {/* Input Form */}
           <form onSubmit={handleSendMessage} className="p-6 border-t border-gray-200 bg-gray-50">
+            {error && (
+              <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2">
+                {error}
+              </div>
+            )}
             <div className="flex space-x-4">
               <input
                 type="text"
@@ -212,16 +217,19 @@ const ChatSection = () => {
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Share what's on your mind..."
                 className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                disabled={isTyping}
+                disabled={isTyping || !sessionId}
               />
               <button
                 type="submit"
-                disabled={!inputText.trim() || isTyping}
+                disabled={!inputText.trim() || isTyping || !sessionId}
                 className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={20} />
               </button>
             </div>
+            {!sessionId && (
+              <p className="text-xs text-gray-500 mt-2">Connecting to AI companion...</p>
+            )}
           </form>
         </div>
 
