@@ -36,6 +36,24 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Chat Models
+class ChatRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
+class ChatResponse(BaseModel):
+    response: str
+    session_id: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    is_crisis: bool = False
+
+class SessionRequest(BaseModel):
+    action: str = "create"  # create or get
+
+class SessionResponse(BaseModel):
+    session_id: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
