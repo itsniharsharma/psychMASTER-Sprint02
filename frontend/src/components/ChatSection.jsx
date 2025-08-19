@@ -73,12 +73,18 @@ const ChatSection = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent event bubbling
-    
-    // Prevent any scrolling
-    const currentScrollY = window.scrollY;
+    e.stopPropagation();
     
     if (!inputText.trim()) return;
+
+    // Lock scroll position
+    const scrollY = window.scrollY;
+    setScrollLocked(true);
+    
+    // Temporarily disable scroll restoration
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
 
     const userMessage = {
       id: Date.now(),
@@ -92,9 +98,6 @@ const ChatSection = () => {
     setInputText('');
     setIsTyping(true);
     setError(null);
-
-    // Restore scroll position to prevent jumping
-    window.scrollTo(0, currentScrollY);
 
     try {
       // Send message to AI backend
@@ -118,9 +121,6 @@ const ChatSection = () => {
         setSessionId(response.data.session_id);
       }
       
-      // Maintain scroll position
-      window.scrollTo(0, currentScrollY);
-      
     } catch (error) {
       console.error('Chat error:', error);
       
@@ -134,11 +134,17 @@ const ChatSection = () => {
       
       setMessages(prev => [...prev, errorMessage]);
       setError('Connection error - please try again');
-      
-      // Maintain scroll position
-      window.scrollTo(0, currentScrollY);
     } finally {
       setIsTyping(false);
+      
+      // Restore original scroll position after a short delay
+      setTimeout(() => {
+        window.scrollTo(0, scrollY);
+        setScrollLocked(false);
+        if ('scrollRestoration' in history) {
+          history.scrollRestoration = 'auto';
+        }
+      }, 100);
     }
   };
 
