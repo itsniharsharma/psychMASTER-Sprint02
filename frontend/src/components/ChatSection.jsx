@@ -37,7 +37,17 @@ const ChatSection = () => {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      e.stopPropagation();
+      
+      // Prevent any scroll changes
+      const currentScrollY = window.scrollY;
+      
       handleSendMessage(e);
+      
+      // Ensure scroll position stays the same
+      setTimeout(() => {
+        window.scrollTo(0, currentScrollY);
+      }, 0);
     }
   };
   useEffect(() => {
