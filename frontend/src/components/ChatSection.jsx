@@ -158,11 +158,20 @@ const ChatSection = () => {
                   <div
                     className={`rounded-2xl px-4 py-3 ${
                       message.isBot
-                        ? 'bg-gray-100 text-gray-900'
+                        ? message.isCrisis 
+                          ? 'bg-red-50 border border-red-200 text-red-900'
+                          : message.isError
+                          ? 'bg-yellow-50 border border-yellow-200 text-yellow-900'
+                          : 'bg-gray-100 text-gray-900'
                         : 'bg-black text-white'
                     }`}
                   >
-                    <p className="text-sm leading-relaxed">{message.text}</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
+                    {message.isCrisis && (
+                      <div className="mt-2 text-xs text-red-700 font-semibold">
+                        🚨 Crisis support information provided above
+                      </div>
+                    )}
                   </div>
                   <p className={`text-xs text-gray-500 mt-1 ${message.isBot ? 'text-left' : 'text-right'}`}>
                     {formatTime(message.timestamp)}
