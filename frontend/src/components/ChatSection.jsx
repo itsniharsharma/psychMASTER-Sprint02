@@ -254,7 +254,23 @@ const ChatSection = () => {
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Store current scroll position
+                    const currentY = window.scrollY;
+                    
+                    // Handle the message sending
+                    handleSendMessage(e);
+                    
+                    // Immediately restore scroll position
+                    requestAnimationFrame(() => {
+                      window.scrollTo(0, currentY);
+                    });
+                  }
+                }}
                 placeholder="Share what's on your mind..."
                 className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 disabled={isTyping || !sessionId}
