@@ -135,7 +135,7 @@ const ChatSection = () => {
           </p>
         </div>
 
-        <div className="bg-gray-50 rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+        <div className="bg-gray-50 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 relative">
           {/* Chat Header */}
           <div className="bg-black text-white p-6 border-b border-gray-700">
             <div className="flex items-center space-x-3">
@@ -156,7 +156,7 @@ const ChatSection = () => {
           </div>
 
           {/* Messages Container */}
-          <div className="h-96 overflow-y-auto p-6 space-y-4 bg-white">
+          <div className="h-96 overflow-y-auto p-6 space-y-4 bg-white scroll-smooth" id="chat-messages">
             {messages.map((message) => (
               <div
                 key={message.id}
