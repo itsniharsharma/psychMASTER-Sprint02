@@ -34,7 +34,13 @@ const ChatSection = () => {
     }
   }, [messages]);
 
-  // Initialize session on component mount
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
+  };
   useEffect(() => {
     const initSession = async () => {
       try {
