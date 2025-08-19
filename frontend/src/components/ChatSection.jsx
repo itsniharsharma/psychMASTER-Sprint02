@@ -25,12 +25,11 @@ const ChatSection = () => {
   };
 
   useEffect(() => {
-    // Only scroll to bottom, don't scroll the entire page
-    if (messagesEndRef.current) {
-      const chatContainer = messagesEndRef.current.closest('.overflow-y-auto');
-      if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
+    // Only scroll within the chat messages container, not the entire page
+    const chatContainer = document.getElementById('chat-messages');
+    if (chatContainer && messagesEndRef.current) {
+      // Smooth scroll to bottom of chat container only
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     }
   }, [messages]);
 
