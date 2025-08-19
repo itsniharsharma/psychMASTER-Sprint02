@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User } from 'lucide-react';
 import axios from 'axios';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
 const ChatSection = () => {
   const [messages, setMessages] = useState([
     {
@@ -13,6 +16,8 @@ const ChatSection = () => {
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
