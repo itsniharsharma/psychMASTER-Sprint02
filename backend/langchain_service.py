@@ -4,7 +4,7 @@ from typing import Optional
 import uuid
 from langchain_groq import ChatGroq
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
-from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
+from langchain_community.document_loaders import TextLoader, DirectoryLoader
 from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
@@ -63,7 +63,7 @@ class MentalHealthChatService:
             
             # Load documents
             if docs_path.exists():
-                loader = DirectoryLoader(str(docs_path), glob="*.pdf", loader_cls=PyPDFLoader)
+                loader = DirectoryLoader(str(docs_path), glob="*.txt", loader_cls=TextLoader)
                 documents = loader.load()
                 
                 if documents:
