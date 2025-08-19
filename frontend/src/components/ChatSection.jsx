@@ -26,17 +26,19 @@ const ChatSection = () => {
   };
 
   useEffect(() => {
-    // Only scroll within the chat messages container, not the entire page
-    const chatContainer = document.getElementById('chat-messages');
-    if (chatContainer && messagesEndRef.current) {
-      // Smooth scroll to bottom of chat container only, don't affect page scroll
-      const scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
-      chatContainer.scrollTo({
-        top: scrollTop,
-        behavior: 'smooth'
-      });
+    // Only scroll within the chat messages container when not locked
+    if (!scrollLocked) {
+      const chatContainer = document.getElementById('chat-messages');
+      if (chatContainer && messagesEndRef.current) {
+        // Smooth scroll to bottom of chat container only, don't affect page scroll
+        const scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+        chatContainer.scrollTo({
+          top: scrollTop,
+          behavior: 'smooth'
+        });
+      }
     }
-  }, [messages]);
+  }, [messages, scrollLocked]);
 
   // Handle Enter key press
   const handleKeyPress = (e) => {
