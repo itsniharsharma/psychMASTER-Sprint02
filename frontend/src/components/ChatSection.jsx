@@ -60,6 +60,9 @@ const ChatSection = () => {
     e.preventDefault();
     e.stopPropagation(); // Prevent event bubbling
     
+    // Prevent any scrolling
+    const currentScrollY = window.scrollY;
+    
     if (!inputText.trim()) return;
 
     const userMessage = {
@@ -74,6 +77,9 @@ const ChatSection = () => {
     setInputText('');
     setIsTyping(true);
     setError(null);
+
+    // Restore scroll position to prevent jumping
+    window.scrollTo(0, currentScrollY);
 
     try {
       // Send message to AI backend
@@ -97,6 +103,9 @@ const ChatSection = () => {
         setSessionId(response.data.session_id);
       }
       
+      // Maintain scroll position
+      window.scrollTo(0, currentScrollY);
+      
     } catch (error) {
       console.error('Chat error:', error);
       
@@ -110,6 +119,9 @@ const ChatSection = () => {
       
       setMessages(prev => [...prev, errorMessage]);
       setError('Connection error - please try again');
+      
+      // Maintain scroll position
+      window.scrollTo(0, currentScrollY);
     } finally {
       setIsTyping(false);
     }
