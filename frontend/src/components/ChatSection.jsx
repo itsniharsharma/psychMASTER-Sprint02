@@ -21,11 +21,17 @@ const ChatSection = () => {
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll to bottom, don't scroll the entire page
+    if (messagesEndRef.current) {
+      const chatContainer = messagesEndRef.current.closest('.overflow-y-auto');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
   }, [messages]);
 
   // Initialize session on component mount
