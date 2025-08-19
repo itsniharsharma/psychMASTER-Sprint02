@@ -53,6 +53,8 @@ const ChatSection = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent event bubbling
+    
     if (!inputText.trim()) return;
 
     const userMessage = {
