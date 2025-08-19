@@ -28,8 +28,12 @@ const ChatSection = () => {
     // Only scroll within the chat messages container, not the entire page
     const chatContainer = document.getElementById('chat-messages');
     if (chatContainer && messagesEndRef.current) {
-      // Smooth scroll to bottom of chat container only
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+      // Smooth scroll to bottom of chat container only, don't affect page scroll
+      const scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+      chatContainer.scrollTo({
+        top: scrollTop,
+        behavior: 'smooth'
+      });
     }
   }, [messages]);
 
