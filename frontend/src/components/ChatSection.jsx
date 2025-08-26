@@ -153,6 +153,66 @@ const ChatSection = () => {
     }
   };
 
+  const handleEndSession = async () => {
+    if (!sessionId) {
+      setError('No active session to end');
+      return;
+    }
+
+    setIsEndingSession(true);
+    setError(null);
+
+    try {
+      const response = await axios.post(`${API}/chat/end-session`, {
+        session_id: sessionId
+      });
+
+      if (response.data.success) {
+        setAnalysisData(response.data);
+        setShowAnalysis(true);
+        setSessionId(null); // Clear session as it's ended
+      } else {
+        setError(response.data.error || 'Failed to end session');
+      }
+
+    } catch (error) {
+      console.error('End session error:', error);
+      setError('Failed to end session and analyze conversation');
+    } finally {
+      setIsEndingSession(false);
+    }
+  };
+
+  const resetChat = () => {
+    setShowAnalysis(false);
+    setAnalysisData(null);
+    setMessages([
+      {
+        id: 1,
+        text: "Hello! I'm psychMASTER, your AI companion for mental health support. How are you feeling today?",
+        isBot: true,
+        timestamp: new Date()
+      }
+    ]);
+    setInputText('');
+    setError(null);
+    
+    // Create new session
+    const initSession = async () => {
+      try {
+        const response = await axios.post(`${API}/chat/session`, {
+          action: "create"
+        });
+        setSessionId(response.data.session_id);
+      } catch (error) {
+        console.error('Failed to create new session:', error);
+        setError('Failed to initialize new chat session');
+      }
+    };
+    
+    initSession();
+  };
+
   const formatTime = (timestamp) => {
     return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
