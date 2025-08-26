@@ -486,50 +486,65 @@ const ChatSection = () => {
           )}
 
           {/* Input Form */}
-          <form onSubmit={handleSendMessage} className="p-6 border-t border-gray-200 bg-gray-50">
-            {error && (
-              <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2">
-                {error}
+          {!showAnalysis ? (
+            <form onSubmit={handleSendMessage} className="p-6 border-t border-gray-200 bg-gray-50">
+              {error && (
+                <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2">
+                  {error}
+                </div>
+              )}
+              <div className="flex space-x-4">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      // Store current scroll position
+                      const currentY = window.scrollY;
+                      
+                      // Handle the message sending
+                      handleSendMessage(e);
+                      
+                      // Immediately restore scroll position
+                      requestAnimationFrame(() => {
+                        window.scrollTo(0, currentY);
+                      });
+                    }
+                  }}
+                  placeholder="Share what's on your mind..."
+                  className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  disabled={isTyping || !sessionId}
+                />
+                <button
+                  type="submit"
+                  disabled={!inputText.trim() || isTyping || !sessionId}
+                  className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send size={20} />
+                </button>
               </div>
-            )}
-            <div className="flex space-x-4">
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Store current scroll position
-                    const currentY = window.scrollY;
-                    
-                    // Handle the message sending
-                    handleSendMessage(e);
-                    
-                    // Immediately restore scroll position
-                    requestAnimationFrame(() => {
-                      window.scrollTo(0, currentY);
-                    });
-                  }
-                }}
-                placeholder="Share what's on your mind..."
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                disabled={isTyping || !sessionId}
-              />
+              {!sessionId && (
+                <p className="text-xs text-gray-500 mt-2">Connecting to AI companion...</p>
+              )}
+            </form>
+          ) : (
+            /* New Session Button */
+            <div className="p-6 border-t border-gray-200 bg-gray-50 text-center">
               <button
-                type="submit"
-                disabled={!inputText.trim() || isTyping || !sessionId}
-                className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={resetChat}
+                className="bg-black text-white px-8 py-3 rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-colors font-medium"
               >
-                <Send size={20} />
+                Start New Session
               </button>
+              <p className="text-xs text-gray-500 mt-2">
+                Click to begin a new conversation with psychMASTER
+              </p>
             </div>
-            {!sessionId && (
-              <p className="text-xs text-gray-500 mt-2">Connecting to AI companion...</p>
-            )}
-          </form>
+          )}
         </div>
 
         <div className="mt-8 text-center">
