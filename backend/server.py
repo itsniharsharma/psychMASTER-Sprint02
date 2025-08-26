@@ -122,6 +122,40 @@ async def manage_session(request: SessionRequest):
         logger.error(f"Session error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error during session management")
 
+@api_router.post("/chat/end-session", response_model=SessionEndResponse)
+async def end_chat_session(request: EndSessionRequest):
+    """End a chat session and perform psychological analysis"""
+    try:
+        result = mental_health_service.end_session(request.session_id)
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=400, detail=result.get('error', 'Failed to end session'))
+        
+        return SessionEndResponse(**result)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"End session error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error during session analysis")
+
+@api_router.get("/chat/session/{session_id}")
+async def get_session_info(session_id: str):
+    """Get session information and analysis if available"""
+    try:
+        session_data = mental_health_service.get_session_data(session_id)
+        
+        if 'error' in session_data:
+            raise HTTPException(status_code=404, detail=session_data['error'])
+        
+        return session_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Get session error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error retrieving session data")
+
 @api_router.get("/health")
 async def health_check():
     """Health check endpoint"""
