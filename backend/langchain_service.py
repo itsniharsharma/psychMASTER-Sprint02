@@ -197,7 +197,8 @@ psychMASTER Response:"""
         session_id = str(uuid.uuid4())
         self.sessions[session_id] = {
             'messages': [],
-            'created_at': str(uuid.uuid4())  # Using uuid for simplicity
+            'created_at': datetime.utcnow().isoformat(),
+            'active': True
         }
         return session_id
     
