@@ -19,6 +19,9 @@ const ChatSection = () => {
   const [sessionId, setSessionId] = useState(null);
   const [error, setError] = useState(null);
   const [scrollLocked, setScrollLocked] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [analysisData, setAnalysisData] = useState(null);
+  const [isEndingSession, setIsEndingSession] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
