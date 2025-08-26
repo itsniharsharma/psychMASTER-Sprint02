@@ -263,66 +263,227 @@ const ChatSection = () => {
           </div>
 
           {/* Messages Container */}
-          <div className="h-96 overflow-y-auto p-6 space-y-4 bg-white scroll-smooth" id="chat-messages">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.isBot ? 'justify-start' : 'justify-end'} space-x-3`}
-              >
-                {message.isBot && (
-                  <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          {!showAnalysis ? (
+            <div className="h-96 overflow-y-auto p-6 space-y-4 bg-white scroll-smooth" id="chat-messages">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'} space-x-3`}
+                >
+                  {message.isBot && (
+                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <Bot className="text-white" size={16} />
+                    </div>
+                  )}
+                  
+                  <div className={`max-w-xs lg:max-w-md ${message.isBot ? 'order-2' : 'order-1'}`}>
+                    <div
+                      className={`rounded-2xl px-4 py-3 ${
+                        message.isBot
+                          ? message.isCrisis 
+                            ? 'bg-red-50 border border-red-200 text-red-900'
+                            : message.isError
+                            ? 'bg-yellow-50 border border-yellow-200 text-yellow-900'
+                            : 'bg-gray-100 text-gray-900'
+                          : 'bg-black text-white'
+                      }`}
+                    >
+                      <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
+                      {message.isCrisis && (
+                        <div className="mt-2 text-xs text-red-700 font-semibold">
+                          🚨 Crisis support information provided above
+                        </div>
+                      )}
+                    </div>
+                    <p className={`text-xs text-gray-500 mt-1 ${message.isBot ? 'text-left' : 'text-right'}`}>
+                      {formatTime(message.timestamp)}
+                    </p>
+                  </div>
+
+                  {!message.isBot && (
+                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 mt-1 order-2">
+                      <User className="text-gray-600" size={16} />
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {isTyping && (
+                <div className="flex justify-start space-x-3">
+                  <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
                     <Bot className="text-white" size={16} />
                   </div>
-                )}
-                
-                <div className={`max-w-xs lg:max-w-md ${message.isBot ? 'order-2' : 'order-1'}`}>
-                  <div
-                    className={`rounded-2xl px-4 py-3 ${
-                      message.isBot
-                        ? message.isCrisis 
-                          ? 'bg-red-50 border border-red-200 text-red-900'
-                          : message.isError
-                          ? 'bg-yellow-50 border border-yellow-200 text-yellow-900'
-                          : 'bg-gray-100 text-gray-900'
-                        : 'bg-black text-white'
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
-                    {message.isCrisis && (
-                      <div className="mt-2 text-xs text-red-700 font-semibold">
-                        🚨 Crisis support information provided above
+                  <div className="bg-gray-100 rounded-2xl px-4 py-3">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          ) : (
+            /* Analysis Results Display */
+            <div className="h-96 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+              <div className="max-w-4xl mx-auto">
+                {/* Analysis Header */}
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
+                    <Brain className="text-white" size={32} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Psychological Analysis Complete</h3>
+                  <p className="text-gray-600">Based on our conversation, here's your personalized mental health assessment</p>
+                </div>
+
+                {analysisData && (
+                  <div className="space-y-6">
+                    {/* Primary Analysis */}
+                    <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                      <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <div className={`w-4 h-4 rounded-full mr-3 ${
+                          analysisData.analysis.risk_level === 'high' ? 'bg-red-500' :
+                          analysisData.analysis.risk_level === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                        }`}></div>
+                        Assessment Results
+                      </h4>
+                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">Primary Concern</p>
+                          <p className="text-lg font-semibold text-gray-900">{analysisData.analysis.predicted_state}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">Risk Level</p>
+                          <p className={`text-lg font-semibold capitalize ${
+                            analysisData.analysis.risk_level === 'high' ? 'text-red-600' :
+                            analysisData.analysis.risk_level === 'medium' ? 'text-yellow-600' : 'text-green-600'
+                          }`}>
+                            {analysisData.analysis.risk_level}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <p className="text-sm text-gray-600 mb-2">Confidence Level</p>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${Math.round(analysisData.analysis.confidence * 100)}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">{Math.round(analysisData.analysis.confidence * 100)}% confidence</p>
+                      </div>
+                    </div>
+
+                    {/* Personalized Message */}
+                    {analysisData.recommendations.personalized_message && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                        <h4 className="text-lg font-semibold text-blue-900 mb-3">Personalized Message</h4>
+                        <p className="text-blue-800 leading-relaxed">{analysisData.recommendations.personalized_message}</p>
+                      </div>
+                    )}
+
+                    {/* Crisis Alert */}
+                    {analysisData.analysis.risk_level === 'high' && (
+                      <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6">
+                        <h4 className="text-lg font-semibold text-red-900 mb-3 flex items-center">
+                          🚨 Immediate Support Needed
+                        </h4>
+                        <div className="space-y-2">
+                          {analysisData.recommendations.immediate_actions?.map((action, index) => (
+                            <p key={index} className="text-red-800 font-medium">• {action}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recommendations */}
+                    <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* YouTube Videos */}
+                      {analysisData.recommendations.youtube_videos?.length > 0 && (
+                        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                          <h4 className="text-lg font-semibold text-gray-900 mb-4">📺 Recommended Videos</h4>
+                          <div className="space-y-3">
+                            {analysisData.recommendations.youtube_videos.slice(0, 3).map((video, index) => (
+                              <div key={index} className="border-l-4 border-red-500 pl-4">
+                                <a 
+                                  href={video.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="block text-blue-600 hover:text-blue-800 font-medium text-sm"
+                                >
+                                  {video.title}
+                                </a>
+                                <p className="text-xs text-gray-600 mt-1">{video.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Articles */}
+                      {analysisData.recommendations.articles?.length > 0 && (
+                        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                          <h4 className="text-lg font-semibold text-gray-900 mb-4">📚 Helpful Articles</h4>
+                          <div className="space-y-3">
+                            {analysisData.recommendations.articles.slice(0, 3).map((article, index) => (
+                              <div key={index} className="border-l-4 border-green-500 pl-4">
+                                <a 
+                                  href={article.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="block text-blue-600 hover:text-blue-800 font-medium text-sm"
+                                >
+                                  {article.title}
+                                </a>
+                                <p className="text-xs text-gray-600 mt-1">{article.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Professional Resources */}
+                    {analysisData.recommendations.professional_resources?.length > 0 && (
+                      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                        <h4 className="text-lg font-semibold text-gray-900 mb-4">🏥 Professional Resources</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {analysisData.recommendations.professional_resources.map((resource, index) => (
+                            <div key={index} className="border border-gray-200 rounded-lg p-4">
+                              <a 
+                                href={resource.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="block text-blue-600 hover:text-blue-800 font-medium text-sm"
+                              >
+                                {resource.title}
+                              </a>
+                              <p className="text-xs text-gray-600 mt-2">{resource.description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Follow-up Suggestions */}
+                    {analysisData.recommendations.follow_up_suggestions?.length > 0 && (
+                      <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                        <h4 className="text-lg font-semibold text-purple-900 mb-3">💡 Follow-up Suggestions</h4>
+                        <div className="space-y-2">
+                          {analysisData.recommendations.follow_up_suggestions.map((suggestion, index) => (
+                            <p key={index} className="text-purple-800">• {suggestion}</p>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
-                  <p className={`text-xs text-gray-500 mt-1 ${message.isBot ? 'text-left' : 'text-right'}`}>
-                    {formatTime(message.timestamp)}
-                  </p>
-                </div>
-
-                {!message.isBot && (
-                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 mt-1 order-2">
-                    <User className="text-gray-600" size={16} />
-                  </div>
                 )}
               </div>
-            ))}
-            
-            {isTyping && (
-              <div className="flex justify-start space-x-3">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="text-white" size={16} />
-                </div>
-                <div className="bg-gray-100 rounded-2xl px-4 py-3">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+            </div>
+          )}
 
           {/* Input Form */}
           <form onSubmit={handleSendMessage} className="p-6 border-t border-gray-200 bg-gray-50">
