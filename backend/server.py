@@ -47,12 +47,31 @@ class ChatResponse(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     is_crisis: bool = False
 
+# Session and Analysis Models
 class SessionRequest(BaseModel):
     action: str = "create"  # create or get
 
 class SessionResponse(BaseModel):
     session_id: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class EndSessionRequest(BaseModel):
+    session_id: str
+
+class AnalysisResult(BaseModel):
+    predicted_state: str
+    confidence: float
+    risk_level: str
+    analysis_timestamp: str
+    total_messages: int
+
+class SessionEndResponse(BaseModel):
+    success: bool
+    session_id: str
+    analysis: Optional[dict] = None
+    recommendations: Optional[dict] = None
+    session_summary: Optional[dict] = None
+    error: Optional[str] = None
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
