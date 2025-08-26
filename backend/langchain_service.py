@@ -261,6 +261,79 @@ You don't have to go through this alone. Professional counselors are available r
                 'error': str(e)
             }
     
+    def end_session(self, session_id: str) -> Dict:
+        """End a chat session and perform psychological analysis"""
+        try:
+            if session_id not in self.sessions:
+                logger.error(f"Session {session_id} not found")
+                return {
+                    'success': False,
+                    'error': 'Session not found'
+                }
+            
+            session_data = self.sessions[session_id]
+            messages = session_data.get('messages', [])
+            
+            if not messages:
+                logger.warning(f"No messages found in session {session_id}")
+                return {
+                    'success': False,
+                    'error': 'No conversation data to analyze'
+                }
+            
+            # Perform psychological analysis
+            logger.info(f"Performing psychological analysis for session {session_id}")
+            analysis_result = psychological_analyzer.analyze_conversation(messages)
+            
+            # Generate personalized recommendations
+            logger.info(f"Generating recommendations for session {session_id}")
+            recommendations = recommendation_system.get_recommendations(analysis_result)
+            
+            # Mark session as ended
+            session_data['active'] = False
+            session_data['ended_at'] = datetime.utcnow().isoformat()
+            session_data['analysis'] = analysis_result
+            session_data['recommendations'] = recommendations
+            
+            return {
+                'success': True,
+                'session_id': session_id,
+                'analysis': analysis_result,
+                'recommendations': recommendations,
+                'session_summary': {
+                    'total_messages': len(messages),
+                    'user_messages': len([m for m in messages if m.get('role') == 'user']),
+                    'conversation_duration': session_data.get('ended_at'),
+                    'started_at': session_data.get('created_at')
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error ending session {session_id}: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Failed to analyze session: {str(e)}'
+            }
+    
+    def get_session_data(self, session_id: str) -> Dict:
+        """Get session data including analysis if session has ended"""
+        try:
+            if session_id not in self.sessions:
+                return {'error': 'Session not found'}
+            
+            session_data = self.sessions[session_id].copy()
+            
+            # Don't return all message content for privacy
+            if 'messages' in session_data:
+                session_data['message_count'] = len(session_data['messages'])
+                del session_data['messages']
+            
+            return session_data
+            
+        except Exception as e:
+            logger.error(f"Error getting session data for {session_id}: {str(e)}")
+            return {'error': str(e)}
+    
     def _get_fallback_response(self, message: str) -> str:
         """Provide fallback responses when AI is unavailable"""
         fallback_responses = [
