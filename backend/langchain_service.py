@@ -11,6 +11,8 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import logging
+from psychological_analysis import psychological_analyzer
+from recommendation_system import recommendation_system
 
 logger = logging.getLogger(__name__)
 
